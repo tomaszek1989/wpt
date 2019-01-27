@@ -185,7 +185,38 @@ jobs:
       artifactName: 'results'
   - template: tools/ci/azure/cleanup_win10.yml
 
-- job: all_macOS
+- job: all_safari
+  displayName: 'all tests (Safari)'
+  # This job is only triggered manually until it has been shown to be robust.
+  condition: and(eq(variables['Build.Reason'], 'Manual'), variables['run_all_safari'])
+  strategy:
+    parallel: 4 # chosen to make runtime ~2h
+  timeoutInMinutes: 360
+  pool:
+    vmImage: 'macOS-10.13'
+  steps:
+  - template: tools/ci/azure/checkout.yml
+  - template: tools/ci/azure/pip_install.yml
+    parameters:
+      packages: virtualenv
+  - template: tools/ci/azure/install_fonts.yml
+  - template: tools/ci/azure/install_certs.yml
+  # TODO: put in something_safari.yml
+  - script: sudo safaridriver --enable
+  - script: defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically 1
+  - template: tools/ci/azure/update_hosts.yml
+  - template: tools/ci/azure/update_manifest.yml
+  - script: |
+      # TODO: drop this when `safaridriver --version` is supported.
+      SAFARI_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /Applications/Safari.app/Contents/Info.plist) ($(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' /Applications/Safari.app/Contents/Info.plist))"
+      no_proxy='*' ./wpt run --no-manifest-update --no-restart-on-unexpected --no-fail-on-unexpected --this-chunk=$(System.JobPositionInPhase) --total-chunks=$(System.TotalJobsInPhase) --chunk-type hash --log-wptreport $(Build.ArtifactStagingDirectory)/wpt_report_$(System.JobPositionInPhase).json --browser-version "$SAFARI_VERSION" safari
+    displayName: 'Run tests'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish results'
+    inputs:
+      artifactName: 'results'
+
+- job: all_safari_preview
   displayName: 'all tests (Safari Technology Preview)'
   condition: eq(variables['Build.Reason'], 'Schedule')
   strategy:
@@ -213,7 +244,7 @@ jobs:
 # The InvokeRESTAPI task can only run in a server job.
 - job: all_post
   displayName: 'all tests (wpt.fyi hook)'
-  dependsOn: all_macOS
+  dependsOn: all_safari_preview
   pool: server
   steps:
   - task: InvokeRESTAPI@1

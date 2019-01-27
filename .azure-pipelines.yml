@@ -17,7 +17,7 @@
 jobs:
 # The affected tests jobs are unconditional for speed, as most PRs have one or
 # more affected tests: https://github.com/web-platform-tests/wpt/issues/13936.
-- job: affected_macOS
+- job: affected_safari_preview
   displayName: 'affected tests (Safari Technology Preview)'
   condition: eq(variables['Build.Reason'], 'PullRequest')
   pool:
@@ -25,9 +25,9 @@ jobs:
   steps:
   - template: tools/ci/azure/affected_tests.yml
     parameters:
-      artifactName: 'affected-tests'
+      artifactName: 'affected-safari-preview'
 
-- job: affected_without_changes_macOS
+- job: affected_without_changes_safari_preview
   displayName: 'affected tests without changes (Safari Technology Preview)'
   condition: eq(variables['Build.Reason'], 'PullRequest')
   pool:
@@ -37,7 +37,7 @@ jobs:
     parameters:
       checkoutCommit: 'HEAD^1'
       affectedRange: 'HEAD@{1}'
-      artifactName: 'affected-tests-without-changes'
+      artifactName: 'affected-without-changes-safari-preview'
 
 # The decision jobs runs `./wpt test-jobs` to determine which jobs to run,
 # and all following jobs wait for it to finish and depend on its output.
@@ -127,7 +127,9 @@ jobs:
     parameters:
       directory: tools/wpt/
 
-- job: all_macOS
+# All `./wpt run` tests are run from epochs/* branches on a schedule. See
+# documentation at the top of this file for required setup.
+- job: all_safari_preview
   displayName: 'all tests (Safari Technology Preview)'
   condition: eq(variables['Build.Reason'], 'Schedule')
   strategy:
@@ -150,13 +152,13 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish results'
     inputs:
-      artifactName: 'results'
+      artifactName: 'all-safari-preview'
     condition: succeededOrFailed()
 
 # The InvokeRESTAPI task can only run in a server job.
 - job: all_post
   displayName: 'all tests (wpt.fyi hook)'
-  dependsOn: all_macOS
+  dependsOn: all_safari_preview
   pool: server
   steps:
   - task: InvokeRESTAPI@1

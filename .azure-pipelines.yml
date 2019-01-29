@@ -129,7 +129,7 @@ jobs:
 
 # All `./wpt run` tests are run from epochs/* branches on a schedule. See
 # documentation at the top of this file for required setup.
-- job: all_safari_preview
+- job: results_safari_preview
   displayName: 'all tests (Safari Technology Preview)'
   condition: eq(variables['Build.Reason'], 'Schedule')
   strategy:
@@ -152,13 +152,13 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish results'
     inputs:
-      artifactName: 'all-safari-preview'
+      artifactName: 'results-safari-preview'
     condition: succeededOrFailed()
 
 # The InvokeRESTAPI task can only run in a server job.
-- job: all_post
+- job: results_post
   displayName: 'all tests (wpt.fyi hook)'
-  dependsOn: all_safari_preview
+  dependsOn: results_safari_preview
   pool: server
   steps:
   - task: InvokeRESTAPI@1

@@ -37,7 +37,7 @@ jobs:
     parameters:
       checkoutCommit: 'HEAD^1'
       affectedRange: 'HEAD@{1}'
-      artifactName: 'affected-without-changes-safari-preview'
+      artifactName: 'safari-preview-affected-tests-without-changes'
 
 # The decision jobs runs `./wpt test-jobs` to determine which jobs to run,
 # and all following jobs wait for it to finish and depend on its output.

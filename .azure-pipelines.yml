@@ -25,7 +25,7 @@ jobs:
   steps:
   - template: tools/ci/azure/affected_tests.yml
     parameters:
-      artifactName: 'affected-safari-preview'
+      artifactName: 'safari-preview-affected-tests'
 
 - job: affected_without_changes_safari_preview
   displayName: 'affected tests without changes (Safari Technology Preview)'

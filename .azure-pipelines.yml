@@ -152,7 +152,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish results'
     inputs:
-      artifactName: 'results-safari-preview'
+      artifactName: 'safari-preview-results'
     condition: succeededOrFailed()
 
 # The InvokeRESTAPI task can only run in a server job.

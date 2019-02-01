@@ -135,7 +135,7 @@ jobs:
 - job: infrastructure_win10
   displayName: 'infrastructure/ tests (Windows 10)'
   # This job is only triggered manually until it has been shown to be robust.
-  condition: eq(variables['Build.Reason'], 'Manual')
+  condition: and(eq(variables['Build.Reason'], 'Manual'), variables['run_infrastructure_win10'])
   pool:
     name: 'Hosted Windows Client'
   steps:
@@ -159,6 +159,34 @@ jobs:
 
 # All `./wpt run` tests are run from epochs/* branches on a schedule. See
 # documentation at the top of this file for required setup.
+- job: results_edge
+  displayName: 'all tests (Edge)'
+  # This job is only triggered manually until it has been shown to be robust.
+  condition: and(eq(variables['Build.Reason'], 'Manual'), variables['run_results_edge'])
+  # There are 5 agents in the pool, but use more jobs so that each takes <1h.
+  strategy:
+    parallel: 20
+  timeoutInMinutes: 360
+  pool:
+    name: 'Hosted Windows Client'
+  steps:
+  - template: tools/ci/azure/system_info.yml
+  - template: tools/ci/azure/checkout.yml
+  - template: tools/ci/azure/install_python.yml
+  - template: tools/ci/azure/pip_install.yml
+    parameters:
+      packages: virtualenv
+  - template: tools/ci/azure/install_certs.yml
+  - template: tools/ci/azure/update_hosts.yml
+  - template: tools/ci/azure/update_manifest.yml
+  - script: python ./wpt run --no-manifest-update --no-restart-on-unexpected --no-fail-on-unexpected --install-fonts --test-types reftest testharness --this-chunk $(System.JobPositionInPhase) --total-chunks $(System.TotalJobsInPhase) --chunk-type hash --log-wptreport $(Build.ArtifactStagingDirectory)/wpt_report_$(System.JobPositionInPhase).json edge_webdriver
+    displayName: 'Run tests'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish results'
+    inputs:
+      artifactName: 'edge-results'
+  - template: tools/ci/azure/cleanup_win10.yml
+
 - job: results_safari_preview
   displayName: 'all tests (Safari Technology Preview)'
   condition: eq(variables['Build.Reason'], 'Schedule')

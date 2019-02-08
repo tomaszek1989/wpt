@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>RTCPeerConnection onsignalingstatechanged</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script>
+
+promise_test(async t => {
+  const [track] = (await navigator.mediaDevices.getUserMedia({video: true})).getTracks();
+  t.add_cleanup(() => track.stop());
+  const pc1 = new RTCPeerConnection();
+  const pc2 = new RTCPeerConnection();
+  pc1.addTrack(track, new MediaStream());
+  pc1.onicecandidate = e => pc2.addIceCandidate(e.candidate);
+  pc2.onicecandidate = e => pc1.addIceCandidate(e.candidate);
+  await pc1.setLocalDescription(await pc1.createOffer());
+  await pc2.setRemoteDescription(pc1.localDescription);
+  pc2.onsignalingstatechange = e => {
+    const transceiver = pc2.getTransceivers()[0];
+    assert_equals(pc2.signalingState, "stable");
+    assert_equals(transceiver.currentDirection, "recvonly");
+  };
+  await pc2.setLocalDescription(await pc2.createAnswer());
+  await pc1.setRemoteDescription(pc2.localDescription);
+});
+
+</script>

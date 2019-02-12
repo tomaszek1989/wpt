@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width">
         <script src="/resources/testharness.js"></script>
         <script src="/resources/testharnessreport.js"></script>
+        <script src="/resources/testdriver.js"></script>
+        <script src="/resources/testdriver-actions.js"></script>
+        <script src="/resources/testdriver-vendor.js"></script>
         <link rel="stylesheet" type="text/css" href="pointerevent_styles.css">
         <!-- Additional helper script for common checks across event types -->
         <script type="text/javascript" src="pointerevent_support.js"></script>
@@ -66,6 +69,22 @@
                     });
                     test_pointerEvent.done();
                 });
+
+                // Inject touch inputs.
+                new test_driver.Actions()
+                    .addPointer("pointer1", "touch")
+                    .pointerMove(0, 0, {origin: target0})
+                    .pointerDown()
+                    .pointerMove(0, -10, {origin: target0})
+                    .pointerMove(0, -20, {origin: target0})
+                    .pointerMove(0, -30, {origin: target0})
+                    .pointerMove(0, -40, {origin: target0})
+                    .pointerMove(0, -50, {origin: target0})
+                    .pointerMove(0, -60, {origin: target0})
+                    .pointerMove(0, -70, {origin: target0})
+                    .pointerMove(0, -80, {origin: target0})
+                    .pointerUp()
+                    .send();
             }
         </script>
         <h1>Pointer Events pointercancel Tests</h1>

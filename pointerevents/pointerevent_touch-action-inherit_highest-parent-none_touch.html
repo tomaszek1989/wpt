@@ -6,6 +6,9 @@
         <link rel="stylesheet" type="text/css" href="pointerevent_styles.css">
         <script src="/resources/testharness.js"></script>
         <script src="/resources/testharnessreport.js"></script>
+        <script src="/resources/testdriver.js"></script>
+        <script src="/resources/testdriver-actions.js"></script>
+        <script src="/resources/testdriver-vendor.js"></script>
         <script src="pointerevent_support.js"></script>
         <style>
             #divParent {
@@ -118,6 +121,30 @@
                         updateDescriptionComplete();
                     }
                 });
+
+                // Inject touch inputs.
+                new test_driver.Actions()
+                    .addPointer("pointer1", "touch")
+                    .pointerMove(0, 0, {origin: scrollTarget})
+                    .pointerDown()
+                    .pointerMove(0, -10, {origin: scrollTarget})
+                    .pointerMove(0, -20, {origin: scrollTarget})
+                    .pointerMove(0, -30, {origin: scrollTarget})
+                    .pointerMove(0, -40, {origin: scrollTarget})
+                    .pointerMove(0, -50, {origin: scrollTarget})
+                    .pointerMove(0, -60, {origin: scrollTarget})
+                    .pointerMove(0, -70, {origin: scrollTarget})
+                    .pointerMove(0, -80, {origin: scrollTarget})
+                    .pointerMove(-10, 0, {origin: scrollTarget})
+                    .pointerMove(-20, 0, {origin: scrollTarget})
+                    .pointerMove(-30, 0, {origin: scrollTarget})
+                    .pointerMove(-40, 0, {origin: scrollTarget})
+                    .pointerMove(-50, 0, {origin: scrollTarget})
+                    .pointerMove(-60, 0, {origin: scrollTarget})
+                    .pointerMove(-70, 0, {origin: scrollTarget})
+                    .pointerMove(-80, 0, {origin: scrollTarget})
+                    .pointerUp()
+                    .send();
             }
 
             function enableScrolling() {
